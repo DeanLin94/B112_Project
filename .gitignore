@@ -1,0 +1,16 @@
+# 排除 Python 暫存
+__pycache__/
+*.pyc
+
+# 排除大模型檔案 (這些通常手動備份，不要進 Git)
+*.engine
+*.pt
+*.onnx
+
+# 排除影像測試紀錄
+*.jpg
+*.mp4
+*.png
+
+# 排除系統暫存
+.DS_Store
