@@ -1,9 +1,8 @@
 import cv2
 import numpy as np
 
-def perspective_trans(points,img_path):  #(左上, 右上, 右下, 左下)
-    img = cv2.imread(img_path)
-    img = cv2.resize(img, (640, 480))
+def perspective_trans(img, points = [[268, 0], [342, 0],  [482, 480],[148, 480]]):  #(左上, 右上, 右下, 左下)
+    
     h, w = img.shape[:2]
     # 將縮圖座標還原回原圖真實座標
     pts_display = np.array(points, dtype="float32")
