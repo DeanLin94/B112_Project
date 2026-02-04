@@ -1,49 +1,37 @@
-import time
 import cv2
 from detector import WeedDetector
 from getImg import CameraHandler
+from pespective_trans import perspective_trans
 
 def main():
-    # 設定路徑
-    MODEL_PATH = "/home/abudy/Desktop/B112Project/best.engine"
-    
-    cam = CameraHandler(source=0, width=640, height=480)
-    detector = WeedDetector(MODEL_PATH)
-
-    prev_time = time.time()
-    print("開始執行... 按下 'q' 退出")
+    cam = CameraHandler(source=0) 
+    MODEL_PATH = "/home/deanlin/Desktop/MyProject/大專生計畫/Yolo_Detection/yolo11n.pt"
+    try:
+        detector = WeedDetector(MODEL_PATH)
+    except Exception as e:
+        print(f"模型載入失敗: {e}")
+        return
 
     while True:
-        # 2. 讀取影像
-        ret, frame = cam.get_frame()
+        # 獲取影像與當前 FPS
+        ret, frame, fps = cam.get_data()
         if not ret:
-            print("無法讀取攝影機影像")
             break
 
-        # 3. 執行偵測
-        dets, show_frame = detector.detect(frame)
+        # 影像校正與偵測
+        corrected_frame = perspective_trans(frame)
+        dets, show_frame = detector.detect(corrected_frame)
 
-        # 4. 計算並顯示 FPS
-        curr_time = time.time()
-        fps = 1 / (curr_time - prev_time)
-        prev_time = curr_time
-
-        fps_text = f"FPS: {fps:.1f}"
-        cv2.putText(show_frame, fps_text, (20, 50), 
+        # FPS
+        cv2.putText(show_frame, f"FPS: {fps:.1f}", (20, 50), 
                     cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
-
-       
-        for d in dets:
-            print(f"偵測到: {d['class']} | 信心度: {d['confidence']:.2f}")
-
-       
         cv2.imshow("Jetson Nano Detection", show_frame)
 
         if cv2.waitKey(1) == ord('q'):
             break
 
+    # 3. 釋放資源
     cam.release()
-    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
